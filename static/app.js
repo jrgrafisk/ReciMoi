@@ -357,7 +357,9 @@ async function route() {
 window.addEventListener("hashchange", route);
 
 // Fjerner &quot; osv. og Instagrams indpakning: '12 likes, 3 comments - bruger on dato: "…".'
+// Tåler også hele resultatet fra genvejens "Match tekst": og:description" content="…"
 function cleanCaption(s) {
+  if (s.includes('og:description"')) s = s.replace(/^[\s\S]*?og:description"\s*content="/, "").replace(/"\s*$/, "");
   const t = document.createElement("textarea");
   t.innerHTML = s;
   const m = t.value.match(/^.*? - (\S+) on [^:]{3,40}: "([\s\S]*)"\.?\s*$/);
