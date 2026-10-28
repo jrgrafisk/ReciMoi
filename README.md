@@ -25,11 +25,14 @@ På Android gemmes kun linket automatisk – browseren må ikke hente tekst fra 
 Tryk **Rediger** på opskriften, indsæt beskrivelsen og tryk **Udfyld felterne ud fra teksten**.
 
 ### iPhone (Safari)
-iPhone tillader ikke webapps i Del-menuen, så delingen går via en genvej, der også henter teksten.
-Åbn **iPhone-genvej** nederst i appen og følg vejledningen.
+1. Åbn linket i Safari → **Del** → **Føj til hjemmeskærm**.
+2. I Instagram: **Del → Kopiér link**.
+3. Åbn ReciMoi → tryk **Indsæt link**. Opslaget gemmes, og du vælger kategori.
+4. Indsæt beskrivelsen under **Rediger** og tryk **Udfyld felterne ud fra teksten**.
 
-Brug appen i **Safari** (som bogmærke) – ikke fra hjemmeskærmen, for på iPhone har hjemmeskærms-apps
-deres egen lagring, og opslag fra genvejen havner i Safari.
+iPhone tillader ikke webapps i Del-menuen. Vil du have ReciMoi direkte i delemenuen og teksten hentet
+automatisk, kan det klares med en genvej – se **iPhone-genvej** nederst i appen. Apple kræver, at en genvej
+signeres på en Mac med iCloud, før den kan deles; `tools/make_shortcut.py` bygger den færdige genvejsfil til det.
 
 ## Dine data
 

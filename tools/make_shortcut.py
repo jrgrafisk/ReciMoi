@@ -2,7 +2,9 @@
 """Bygger iPhone-genvejen ReciMoi som .shortcut-fil (usigneret).
 
 Genvejen står i delemenuen, henter Instagram-siden, finder beskrivelsen (og:description)
-og åbner ReciMoi med link + tekst. Signeres bagefter på en Mac med `shortcuts sign`.
+og åbner ReciMoi med link + tekst. Signeres bagefter på en Mac, der er logget ind i iCloud:
+  shortcuts sign --mode anyone --input ud.shortcut --output ReciMoi.shortcut
+Åbn den signerede fil på iPhonen, og del den derefter som iCloud-link.
 Brug:  python3 tools/make_shortcut.py ud.shortcut [app-adresse]
 """
 import plistlib

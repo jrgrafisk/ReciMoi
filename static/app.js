@@ -38,10 +38,16 @@ async function updateBadge() {
 // ---------------------------------------------------------------- opskriftsliste
 async function renderList() {
   await loadCats();
-  const input = el("input", { type: "text", inputMode: "url", placeholder: "Indsæt Instagram-link…", ariaLabel: "Instagram-link" });
-  const add = el("form", { autocomplete: "off" }, input, el("button", { type: "submit" }, "Gem"));
+  const input = el("input", { type: "text", inputMode: "url", placeholder: "Instagram-link…", ariaLabel: "Instagram-link", enterKeyHint: "done" });
+  // Ét tryk efter "Kopiér link" i Instagram (iPhone har ingen Del-til-webapp)
+  const paste = navigator.clipboard?.readText ? btn("Indsæt link", async () => {
+    try { input.value = await navigator.clipboard.readText(); } catch { return input.focus(); }
+    add.requestSubmit();
+  }, "") : null;
+  const add = el("form", { autocomplete: "off" }, input, paste || el("button", { type: "submit" }, "Gem"));
   add.onsubmit = async (e) => {
     e.preventDefault();
+    if (!input.value.trim()) return input.focus();
     try {
       const { recipe, existing } = await Store.addShared({ input: input.value });
       input.value = "";
