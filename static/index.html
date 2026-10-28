@@ -3,37 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Opskrifter</title>
+<title>ReciMoi</title>
+<meta name="description" content="Gem opskrifter fra Instagram – kun på din telefon.">
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Opskrifter">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <form id="add" autocomplete="off">
-    <input id="addInput" type="text" inputmode="url" placeholder="Indsæt Instagram-link…" aria-label="Instagram-link">
-    <button type="submit">Gem</button>
-  </form>
-  <input id="search" type="search" placeholder="Søg i tekst…" aria-label="Søg">
-  <nav id="chips" aria-label="Kategorier"></nav>
-</header>
-
 <p id="backupNote" class="note" hidden>Dine opskrifter ligger kun på denne telefon. Tag en backup en gang imellem:
   <button id="backupNow" type="button" class="link">Download backup nu</button></p>
-<main id="list"></main>
-<p id="empty" hidden>Ingen opslag her endnu.</p>
 
-<footer>
-  <p id="where" class="muted" hidden>Data gemmes kun på denne enhed.</p>
-  <button id="manage" class="link">Rediger kategorier</button> ·
-  <a href="api/export" id="export">Download backup</a> ·
-  <label id="importLbl" hidden><a>Gendan backup</a><input type="file" id="import" accept="application/json" hidden></label> ·
-  <a href="ios.html">iPhone-genvej</a>
-</footer>
+<div id="view"></div>
+
+<nav id="tabs" aria-label="Hovedmenu">
+  <a href="#/" data-tab="list">Opskrifter</a>
+  <a href="#/new" data-tab="new">＋ Ny</a>
+  <a href="#/shop" data-tab="shop">Indkøb <span id="badge" hidden></span></a>
+</nav>
 
 <div id="toast" role="status" hidden></div>
 
@@ -45,7 +33,7 @@
     <input id="newCatName" placeholder="Ny kategori…" aria-label="Ny kategori">
     <button type="submit">Opret</button>
   </form>
-  <button id="pickerClose" class="link">Spring over</button>
+  <button id="pickerClose" class="link" type="button">Spring over</button>
 </dialog>
 
 <dialog id="cats">
@@ -55,10 +43,13 @@
     <input id="newCat2Name" placeholder="Ny kategori…" aria-label="Ny kategori">
     <button type="submit">Opret</button>
   </form>
-  <button id="catsClose" class="link">Luk</button>
+  <button id="catsClose" class="link" type="button">Luk</button>
 </dialog>
 
-<script src="localapi.js"></script>
+<input type="file" id="import" accept="application/json,.json" hidden>
+
+<script src="parse.js"></script>
+<script src="store.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

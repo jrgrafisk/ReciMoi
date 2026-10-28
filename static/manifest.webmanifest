@@ -1,6 +1,6 @@
 {
-  "name": "Opskrifter",
-  "short_name": "Opskrifter",
+  "name": "ReciMoi",
+  "short_name": "ReciMoi",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

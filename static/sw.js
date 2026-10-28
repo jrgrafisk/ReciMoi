@@ -1,6 +1,6 @@
 // Minimal service worker: gør appen installérbar (nødvendigt for "Del til"-menuen på Android).
 // Netværk først, så ændringer altid ses; cache bruges kun som offline-fallback for appens skal.
-const CACHE = "opskrifter-shell-v1";
+const CACHE = "recimoi-v2";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));

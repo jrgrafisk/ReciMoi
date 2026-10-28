@@ -1,7 +1,17 @@
 # ReciMoi
 
-Gem opskrifter og andre opslag fra Instagram på din telefon – med tekst, link og dine egne kategorier.
+En super let, privat opskriftsapp: gem opskrifter fra Instagram, få dem delt op i ingredienser og trin,
+sortér dem i dine egne kategorier, og læg ingredienserne på indkøbslisten med ét tryk.
 Ingen konto, ingen server, ingen AI: alt gemmes kun på telefonen.
+
+## Funktioner
+
+- **Del fra Instagram** – opslagets tekst gemmes, så du har den, selv hvis opslaget slettes.
+- **Opskriftsformat** – titel, portioner, ingredienser og trin foreslås ud fra teksten med enkle regler
+  (genkender fx “Ingredienser:”, “Fremgangsmåde:”, mængder og nummererede trin). Ret til under **Rediger**.
+- **Egne opskrifter** – tryk **＋ Ny**, eller indsæt en tekst og tryk **Udfyld felterne ud fra teksten**.
+- **Kategorier** – opret, omdøb og slet dem selv; filtrér og søg i titler, tekst og ingredienser.
+- **Indkøbsliste** – læg en opskrifts ingredienser på listen; ens varer lægges sammen (3 æg + 3 æg = 6 æg).
 
 **Åbn appen:** https://jrgrafisk.github.io/ReciMoi/
 
@@ -12,7 +22,7 @@ Ingen konto, ingen server, ingen AI: alt gemmes kun på telefonen.
 2. I Instagram: **Del → Opskrifter**. Opslaget gemmes, og du vælger kategori.
 
 På Android gemmes kun linket automatisk – browseren må ikke hente tekst fra Instagram.
-Tryk **Rediger** på opslaget for at indsætte beskrivelsen.
+Tryk **Rediger** på opskriften, indsæt beskrivelsen og tryk **Udfyld felterne ud fra teksten**.
 
 ### iPhone (Safari)
 iPhone tillader ikke webapps i Del-menuen, så delingen går via en genvej, der også henter teksten.
@@ -38,10 +48,7 @@ deres egen lagring, og opslag fra genvejen havner i Safari.
 
 ## Udvikling
 
-Appen er ren HTML/JS i `static/` og udgives automatisk på GitHub Pages ved push til `main`
-(Settings → Pages → Source: **GitHub Actions**).
+Ren HTML/CSS/JS uden byggetrin i `static/`: `parse.js` (tekst → opskrift), `store.js` (IndexedDB), `app.js` (UI).
+Udgives automatisk på GitHub Pages ved push til `main`.
 
 Kør lokalt: `cd static && python3 -m http.server 8000` → http://localhost:8000
-
-`server.py` er en valgfri server-udgave (Python, SQLite), som henter tekst og miniaturebilleder automatisk
-for alle enheder: `python3 server.py`. Den samme frontend skifter selv til server-tilstand, når den finder serveren.
