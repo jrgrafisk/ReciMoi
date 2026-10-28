@@ -1,0 +1,20 @@
+# Bygger iPhone-genvejen og signerer den på en virtuel Mac (Apple kræver signering for at kunne installere den).
+name: Genvej
+on:
+  push:
+    branches: [main]
+    paths: [tools/**, .github/workflows/shortcut.yml]
+  workflow_dispatch:
+jobs:
+  sign:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/make_shortcut.py ReciMoi-unsigned.shortcut
+      - run: sw_vers && shortcuts --help | head -20
+      - run: shortcuts sign --mode anyone --input ReciMoi-unsigned.shortcut --output ReciMoi.shortcut
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: genvej
+          path: "*.shortcut"
