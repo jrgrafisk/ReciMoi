@@ -11,8 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 tools/make_shortcut.py ReciMoi-unsigned.shortcut
-      - run: sw_vers && shortcuts --help | head -20
-      - run: shortcuts sign --mode anyone --input ReciMoi-unsigned.shortcut --output ReciMoi.shortcut
+      - name: Signér
+        run: |
+          for mode in anyone people-who-know-me; do
+            if out=$(shortcuts sign --mode "$mode" --input ReciMoi-unsigned.shortcut --output ReciMoi.shortcut 2>&1); then
+              echo "::notice::Signeret ($mode)"; exit 0
+            fi
+            echo "::warning::sign $mode fejlede: $(echo "$out" | tr '\n' ' ' | cut -c1-400)"
+          done
+          exit 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
