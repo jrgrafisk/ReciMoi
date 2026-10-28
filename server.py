@@ -186,11 +186,11 @@ def save_thumb(code, image_url):
 # --------------------------------------------------------------------------
 def post_dict(r):
     d = dict(r)
-    d["thumb_url"] = f"/thumbs/{d['thumb']}" if d["thumb"] else ""
+    d["thumb_url"] = f"thumbs/{d['thumb']}" if d["thumb"] else ""
     return d
 
 
-def create_post(raw, category_id=None, fetcher=None):
+def create_post(raw, category_id=None, fetcher=None, text=""):
     found = find_post(raw)
     if not found:
         return None, False
@@ -201,6 +201,7 @@ def create_post(raw, category_id=None, fetcher=None):
         if row:
             return post_dict(row), True
         info = (fetcher or fetch_instagram)(url)
+        info["text"] = text or info["text"]
         thumb = save_thumb(code, info["image_url"])
         cur = con.execute(
             "INSERT INTO posts(shortcode,kind,url,author,text,image_url,thumb,category_id) VALUES(?,?,?,?,?,?,?,?)",
@@ -328,7 +329,8 @@ class Handler(BaseHTTPRequestHandler):
         path, _ = self.route()
         b = self.body()
         if path == "/api/posts":
-            post, existing = create_post(str(b.get("input", "")), b.get("category_id"))
+            post, existing = create_post(str(b.get("input", "")), b.get("category_id"),
+                                       text=str(b.get("text", "")).strip())
             if not post:
                 return self.send_json({"error": "Fandt intet Instagram-link (p/reel/tv)."}, 400)
             return self.send_json({"post": post, "existing": existing})

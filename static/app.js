@@ -2,7 +2,21 @@
 const $ = (id) => document.getElementById(id);
 const state = { cats: [], counts: {}, filter: "all", q: "", highlight: null };
 
+// "server" (python server.py), "local" (ren webapp, data i browseren) eller "down" (server utilgængelig)
+let mode = "server";
+
+async function detectMode() {
+  try {
+    const r = await fetch("api/categories");
+    const json = (r.headers.get("content-type") || "").includes("json");
+    return r.ok && json ? "server" : "local";
+  } catch {
+    return /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "down" : "local";
+  }
+}
+
 async function api(path, method = "GET", body) {
+  if (mode === "local") return localApi(path, method, body || {});
   const r = await fetch(path, {
     method,
     headers: body ? { "Content-Type": "application/json" } : undefined,
@@ -29,7 +43,7 @@ function toast(msg) {
 }
 
 async function loadCats() {
-  const d = await api("/api/categories");
+  const d = await api("api/categories");
   state.cats = d.categories;
   state.counts = { all: d.total, none: d.uncategorized };
   renderChips();
@@ -53,7 +67,7 @@ async function loadPosts() {
   const p = new URLSearchParams();
   if (state.filter !== "all") p.set("category", state.filter);
   if (state.q) p.set("q", state.q);
-  const posts = await api("/api/posts?" + p);
+  const posts = await api("api/posts?" + p);
   const list = $("list");
   list.replaceChildren(...posts.map(card));
   $("empty").hidden = posts.length > 0;
@@ -64,13 +78,13 @@ function card(p) {
     ? el("img", { className: "thumb", src: p.thumb_url, alt: "", loading: "lazy" })
     : el("div", { className: "thumb none" }, p.kind === "reel" ? "▶" : "▣");
 
-  const text = el("div", { className: "text" + (p.text ? "" : " missing") }, p.text || "Ingen tekst hentet – tryk “Hent igen” eller “Rediger”.");
+  const text = el("div", { className: "text" + (p.text ? "" : " missing") }, p.text || (mode === "local" ? "Ingen tekst – tryk “Rediger” og indsæt beskrivelsen." : "Ingen tekst hentet – tryk “Hent igen” eller “Rediger”."));
   text.onclick = () => text.classList.toggle("open");
 
   const sel = el("select", { ariaLabel: "Kategori" }, el("option", { value: "" }, "Uden kategori"),
     ...state.cats.map((c) => el("option", { value: c.id, selected: c.id === p.category_id }, c.name)));
   sel.onchange = async () => {
-    await api("/api/posts/" + p.id, "PATCH", { category_id: sel.value ? Number(sel.value) : null });
+    await api("api/posts/" + p.id, "PATCH", { category_id: sel.value ? Number(sel.value) : null });
     await loadCats();
     if (state.filter !== "all") loadPosts();
   };
@@ -80,7 +94,7 @@ function card(p) {
   edit.onclick = () => {
     const ta = el("textarea", { value: p.text });
     const save = el("button", { type: "button" }, "Gem tekst");
-    save.onclick = async () => { await api("/api/posts/" + p.id, "PATCH", { text: ta.value }); loadPosts(); };
+    save.onclick = async () => { await api("api/posts/" + p.id, "PATCH", { text: ta.value }); loadPosts(); };
     text.replaceWith(ta);
     edit.replaceWith(save);
     ta.focus();
@@ -88,13 +102,13 @@ function card(p) {
   const refetch = el("button", { className: "link", type: "button" }, "Hent igen");
   refetch.onclick = async () => {
     refetch.textContent = "Henter…";
-    try { await api(`/api/posts/${p.id}/refetch`, "POST", {}); } catch (e) { toast(e.message); }
+    try { await api(`api/posts/${p.id}/refetch`, "POST", {}); } catch (e) { toast(e.message); }
     loadPosts();
   };
   const del = el("button", { className: "link danger", type: "button" }, "Slet");
   del.onclick = async () => {
     if (!confirm("Slet dette opslag og den gemte tekst?")) return;
-    await api("/api/posts/" + p.id, "DELETE");
+    await api("api/posts/" + p.id, "DELETE");
     await loadCats();
     loadPosts();
   };
@@ -102,7 +116,7 @@ function card(p) {
   const meta = el("div", { className: "meta" },
     el("span", { className: "author" }, p.author ? "@" + p.author : "Instagram"),
     el("span", { className: "muted" }, new Date(p.created.replace(" ", "T") + "Z").toLocaleDateString("da-DK")));
-  const actions = el("div", { className: "actions" }, sel, open, edit, ...(p.text ? [] : [refetch]), el("span", { className: "sp" }), del);
+  const actions = el("div", { className: "actions" }, sel, open, edit, ...(p.text || mode === "local" ? [] : [refetch]), el("span", { className: "sp" }), del);
 
   const c = el("article", { className: "card" + (state.highlight === p.id ? " hl" : "") }, thumb, el("div", { className: "body" }, meta, text, actions));
   return c;
@@ -112,7 +126,7 @@ function card(p) {
 function pickCategory(post) {
   $("pickerInfo").textContent = (post.author ? "@" + post.author + " – " : "") + (post.text || "Opslag gemt").slice(0, 80);
   const assign = async (id) => {
-    await api("/api/posts/" + post.id, "PATCH", { category_id: id });
+    await api("api/posts/" + post.id, "PATCH", { category_id: id });
     $("picker").close();
     await loadCats();
     loadPosts();
@@ -126,7 +140,7 @@ function pickCategory(post) {
     e.preventDefault();
     const name = $("newCatName").value.trim();
     if (!name) return;
-    const c = await api("/api/categories", "POST", { name });
+    const c = await api("api/categories", "POST", { name });
     $("newCatName").value = "";
     assign(c.id);
   };
@@ -141,13 +155,13 @@ function renderCatList() {
     ren.onclick = async () => {
       const name = prompt("Nyt navn", c.name);
       if (!name || !name.trim()) return;
-      try { await api("/api/categories/" + c.id, "PATCH", { name }); } catch (e) { return toast(e.message); }
+      try { await api("api/categories/" + c.id, "PATCH", { name }); } catch (e) { return toast(e.message); }
       await loadCats(); renderCatList(); loadPosts();
     };
     const del = el("button", { className: "link danger", type: "button" }, "Slet");
     del.onclick = async () => {
       if (!confirm(`Slet “${c.name}”? Opslagene beholdes uden kategori.`)) return;
-      await api("/api/categories/" + c.id, "DELETE");
+      await api("api/categories/" + c.id, "DELETE");
       if (state.filter === String(c.id)) state.filter = "all";
       await loadCats(); renderCatList(); loadPosts();
     };
@@ -160,7 +174,7 @@ $("newCat2").onsubmit = async (e) => {
   e.preventDefault();
   const name = $("newCat2Name").value.trim();
   if (!name) return;
-  await api("/api/categories", "POST", { name });
+  await api("api/categories", "POST", { name });
   $("newCat2Name").value = "";
   await loadCats(); renderCatList(); loadPosts();
 };
@@ -174,7 +188,7 @@ $("add").onsubmit = async (e) => {
   btn.disabled = true;
   btn.textContent = "Henter…";
   try {
-    const { post, existing } = await api("/api/posts", "POST", { input });
+    const { post, existing } = await api("api/posts", "POST", { input });
     $("addInput").value = "";
     state.highlight = post.id;
     await loadCats();
@@ -196,20 +210,63 @@ $("search").oninput = (e) => {
   searchTimer = setTimeout(() => { state.q = e.target.value.trim(); loadPosts(); }, 200);
 };
 
+const cleanCaption = (s) => {
+  const t = document.createElement("textarea");
+  t.innerHTML = s; // afkod &quot; osv. fra Instagrams meta-tag
+  const m = t.value.match(/^.*? - (\S+) on [^:]{3,40}: "([\s\S]*)"\.?\s*$/);
+  return m ? { author: m[1], text: m[2] } : { author: "", text: t.value };
+};
+
+// ---- backup (kun lokal tilstand; serveren har sit eget endpoint) ----
+$("export").onclick = async (e) => {
+  if (mode !== "local") return;
+  e.preventDefault();
+  const blob = new Blob([JSON.stringify(await localExport(), null, 1)], { type: "application/json" });
+  const a = el("a", { href: URL.createObjectURL(blob), download: "recimoi-backup.json" });
+  a.click();
+};
+$("import").onchange = async (e) => {
+  try {
+    if (!confirm("Gendan backup? Det erstatter alt, der er gemt nu.")) return;
+    await localImport(JSON.parse(await e.target.files[0].text()));
+    await loadCats();
+    loadPosts();
+    toast("Backup gendannet");
+  } catch (err) {
+    toast(err.message);
+  }
+};
+
 // ---- start ----
 (async function init() {
+  mode = await detectMode();
+  if (mode === "down") {
+    $("list").replaceChildren(el("p", { className: "muted" }, "Serveren kører ikke. Åbn Termux og start den (se README), og genindlæs siden."));
+    return;
+  }
+  if (mode === "local") $("importLbl").hidden = false;
   const params = new URLSearchParams(location.search);
+  let newId = Number(params.get("new")) || null;
+  // Delt fra Instagram (Android "Del til", iOS-genvej): ?url=…&text=…&title=…[&caption=…]
+  const shared = ["url", "text", "title"].map((k) => params.get(k)).filter(Boolean).join(" ");
+  let shareErr = params.get("err");
+  if (shared) {
+    try {
+      const cap = cleanCaption(params.get("caption") || "");
+      const { post } = await api("api/posts", "POST", { input: shared, text: cap.text, author: cap.author });
+      newId = post.id;
+    } catch { shareErr = "1"; }
+  }
   await loadCats();
-  const newId = Number(params.get("new")) || null;
   state.highlight = newId;
   await loadPosts();
-  if (params.get("err")) toast("Fandt intet Instagram-link i det, du delte.");
+  if (shareErr) toast("Fandt intet Instagram-link i det, du delte.");
   if (newId) {
-    const posts = await api("/api/posts");
+    const posts = await api("api/posts");
     const post = posts.find((p) => p.id === newId);
     if (post && !post.category_id) pickCategory(post);
     else if (post) toast("Det opslag var allerede gemt");
   }
-  if (params.has("new") || params.has("err")) history.replaceState(null, "", "/");
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+  if (location.search) history.replaceState(null, "", location.pathname);
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();

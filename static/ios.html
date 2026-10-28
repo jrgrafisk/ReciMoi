@@ -4,40 +4,39 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>iOS-genvej</title>
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="style.css">
 <style>
   ol { padding-left: 1.2em; display: grid; gap: 12px; }
-  code, .copybox { background: var(--chip); border-radius: 8px; padding: 2px 6px; overflow-wrap: anywhere; }
-  .copybox { display: flex; gap: 8px; align-items: center; padding: 8px 10px; margin: 6px 0; }
+  code { background: var(--chip); border-radius: 8px; padding: 2px 6px; overflow-wrap: anywhere; }
+  .copybox { display: flex; gap: 8px; align-items: center; background: var(--chip); border-radius: 8px; padding: 8px 10px; margin: 6px 0; }
   .copybox code { flex: 1; background: none; padding: 0; }
 </style>
 </head>
 <body>
 <h1>Del fra Instagram på iPhone</h1>
-<p class="muted">Lav denne genvej én gang (ca. 2 minutter) i appen <b>Genveje</b>. Så står “Opskrifter” i Instagrams delemenu.</p>
+<p class="muted">Lav genvejen én gang (ca. 5 minutter) i appen <b>Genveje</b>. Først skal siden her være føjet til hjemmeskærmen (Safari → Del → Føj til hjemmeskærm), så dine data gemmes sikkert i appen.</p>
 
 <ol>
-  <li>Åbn <b>Genveje</b> → tryk <b>+</b> (ny genvej). Navngiv den <b>Opskrifter</b>.</li>
-  <li>Tryk på <b>ⓘ</b> (indstillinger) → slå <b>Vis i delingsark</b> til. Under “Modtag” vælg kun <b>URL’er</b> (og evt. Tekst). Tryk Udført.</li>
-  <li>Tilføj handlingen <b>URL-kod</b> (søg “URL”). Sæt dens input til <b>Input fra genvej</b>.</li>
-  <li>Tilføj handlingen <b>Tekst</b> og skriv præcis dette, og tilføj så variablen <b>URL-kodet tekst</b> lige efter:
-    <div class="copybox"><code id="base"></code><button id="copy" type="button">Kopiér</button></div>
-  </li>
-  <li>Tilføj handlingen <b>Åbn URL’er</b>, og sæt dens input til <b>Tekst</b> fra forrige trin.</li>
-  <li>I Instagram: <b>Del</b> → rul til højre i rækken af apps → <b>Mere</b> → find <b>Opskrifter</b> og tryk på stjernen/+ for at flytte den øverst.</li>
+  <li>Genveje → <b>+</b>. Navngiv den <b>Opskrifter</b>. Tryk <b>ⓘ</b> → slå <b>Vis i delingsark</b> til, og vælg kun <b>URL’er</b>.</li>
+  <li>Tilføj <b>Hent indhold fra URL</b> (Get Contents of URL) med <b>Input fra genvej</b> som URL. Den henter selve Instagram-siden.</li>
+  <li>Tilføj <b>Match tekst</b> (Match Text) på resultatet, mønster:
+    <div class="copybox"><code>og:description" content="([^"]*)"</code></div></li>
+  <li>Tilføj <b>Hent gruppe fra matchet tekst</b> → gruppe 1. Så <b>URL-kod</b> resultatet. Tilføj endnu en <b>URL-kod</b> på <b>Input fra genvej</b>.</li>
+  <li>Tilføj <b>Tekst</b>, og sæt det sammen i denne rækkefølge: grundadressen, det URL-kodede link, <code>&amp;caption=</code>, den URL-kodede beskrivelse:
+    <div class="copybox"><code id="base"></code><button id="copy" type="button">Kopiér</button></div></li>
+  <li>Tilføj <b>Åbn URL’er</b> med den tekst som input.</li>
+  <li>I Instagram: <b>Del → Mere → Opskrifter</b> (flyt den øverst med “Rediger handlinger”).</li>
 </ol>
 
-<p>Når du deler, åbnes Safari med opslaget gemt, og du vælger kategori. Tip: tilføj også siden til hjemmeskærmen (Del → Føj til hjemmeskærm).</p>
-<p class="muted" id="warn" hidden>Adressen ovenfor er “localhost”. Åbn denne side fra iPhonen via computerens netværksadresse (vist når serveren starter), ellers peger genvejen forkert.</p>
-<p><a href="/">← Til appen</a></p>
+<p><b>Hvis beskrivelsen er tom:</b> Instagram viser nogle gange en login-side til genvejen i stedet for opslaget. Opslaget gemmes så med linket, og du trykker “Rediger” i appen og indsætter teksten. Genvejen er ikke afprøvet mod din iPhone/Instagram, så justér trinene, hvis et trin ser anderledes ud.</p>
+<p><a href="./">← Til appen</a></p>
 
 <script>
-  const base = location.origin + "/share?url=";
+  const base = new URL("./?url=", location.href).href;
   document.getElementById("base").textContent = base;
-  if (/^(localhost|127\.)/.test(location.hostname)) document.getElementById("warn").hidden = false;
   document.getElementById("copy").onclick = async (e) => {
     try { await navigator.clipboard.writeText(base); e.target.textContent = "Kopieret ✓"; }
-    catch { const r = document.createRange(); r.selectNodeContents(document.getElementById("base")); getSelection().removeAllRanges(); getSelection().addRange(r); e.target.textContent = "Markeret – kopiér"; }
+    catch { e.target.textContent = "Markér og kopiér selv"; }
   };
 </script>
 </body>

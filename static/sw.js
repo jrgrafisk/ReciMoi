@@ -8,7 +8,7 @@ self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return;
-  if (url.pathname.startsWith("/api/") || url.pathname === "/share") return;
+  if (url.pathname.includes("/api/") || url.pathname.endsWith("/share")) return;
   e.respondWith(
     fetch(e.request)
       .then((r) => {

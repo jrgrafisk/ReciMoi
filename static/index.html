@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Opskrifter</title>
 <meta name="theme-color" content="#0f766e">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icon-192.png">
-<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Opskrifter">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
@@ -27,8 +27,9 @@
 
 <footer>
   <button id="manage" class="link">Rediger kategorier</button> ·
-  <a href="/api/export">Download backup</a> ·
-  <a href="/ios.html">iPhone-genvej</a>
+  <a href="api/export" id="export">Download backup</a> ·
+  <label id="importLbl" hidden><a>Gendan backup</a><input type="file" id="import" accept="application/json" hidden></label> ·
+  <a href="ios.html">iPhone-genvej</a>
 </footer>
 
 <div id="toast" role="status" hidden></div>
@@ -54,6 +55,7 @@
   <button id="catsClose" class="link">Luk</button>
 </dialog>
 
-<script src="/app.js"></script>
+<script src="localapi.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
