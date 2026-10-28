@@ -22,10 +22,13 @@
   <nav id="chips" aria-label="Kategorier"></nav>
 </header>
 
+<p id="backupNote" class="note" hidden>Dine opskrifter ligger kun på denne telefon. Tag en backup en gang imellem:
+  <button id="backupNow" type="button" class="link">Download backup nu</button></p>
 <main id="list"></main>
 <p id="empty" hidden>Ingen opslag her endnu.</p>
 
 <footer>
+  <p id="where" class="muted" hidden>Data gemmes kun på denne enhed.</p>
   <button id="manage" class="link">Rediger kategorier</button> ·
   <a href="api/export" id="export">Download backup</a> ·
   <label id="importLbl" hidden><a>Gendan backup</a><input type="file" id="import" accept="application/json" hidden></label> ·

@@ -1,46 +1,47 @@
-# Opskrift-gemmer
+# ReciMoi
 
-Gem Instagram-opslag (tekst + link + miniature) lokalt, og sortér dem i dine egne kategorier.
-Kun Python 3 – ingen pakker, ingen sky, ingen AI. Alt ligger i `data/opskrifter.db` (+ `data/thumbs/`).
+Gem opskrifter og andre opslag fra Instagram på din telefon – med tekst, link og dine egne kategorier.
+Ingen konto, ingen server, ingen AI: alt gemmes kun på telefonen.
 
-```bash
-python3 server.py            # http://localhost:8000
-```
+**Åbn appen:** https://jrgrafisk.github.io/ReciMoi/
 
-Åbn `http://localhost:8000`, indsæt et Instagram-link og tryk **Gem**. Teksten hentes og gemmes i databasen,
-så du har den, selv hvis opslaget slettes. Efter hver gem spørger appen om kategori (du kan oprette nye der).
-Backup: "Download backup" nederst, eller kopiér `data/`-mappen.
-
-## Del direkte fra Instagram
-
-Telefonen skal kunne nå serveren, og Android kræver **HTTPS** for at installere appen som "del-mål".
+## Kom i gang
 
 ### Android (Chrome)
-1. Gør serveren tilgængelig over HTTPS på telefonen (se nedenfor).
-2. Åbn adressen i Chrome → menu → **Installér app / Føj til startskærm**.
-3. I Instagram: **Del → … → Opskrifter**. Opslaget gemmes, og du vælger kategori.
+1. Åbn linket i Chrome → menu (⋮) → **Installér app** / **Føj til startskærm**.
+2. I Instagram: **Del → Opskrifter**. Opslaget gemmes, og du vælger kategori.
 
-### iOS (Safari)
-iOS understøtter ikke "Web Share Target", så den kan ikke stå direkte i delemenuen som PWA. Brug i stedet en **Genvej** (Shortcuts), som *kan* stå i delearket:
-En færdig `.shortcut`-fil kan ikke leveres (iOS kræver Apple-signering). Åbn i stedet **`/ios.html`** fra iPhonen
-(link nederst i appen) – den viser trinene med din serveradresse udfyldt. Kort fortalt:
-URL-kod *Input fra genvej* → Tekst `http://DIN-SERVER:8000/share?url=` + resultatet → **Åbn URL'er**,
-og slå **Vis i delingsark** til (modtag URL'er).
+På Android gemmes kun linket automatisk – browseren må ikke hente tekst fra Instagram.
+Tryk **Rediger** på opslaget for at indsætte beskrivelsen.
 
-Genvejen virker også på HTTP i hjemmenetværket; iOS kræver ikke HTTPS til dette.
+### iPhone (Safari)
+iPhone tillader ikke webapps i Del-menuen, så delingen går via en genvej, der også henter teksten.
+Åbn **iPhone-genvej** nederst i appen og følg vejledningen.
 
-## Adgang fra telefonen
+Brug appen i **Safari** (som bogmærke) – ikke fra hjemmeskærmen, for på iPhone har hjemmeskærms-apps
+deres egen lagring, og opslag fra genvejen havner i Safari.
 
-Serveren lytter på alle netværkskort (`--host 127.0.0.1` for kun denne computer). Startmeddelelsen viser LAN-adressen.
-Der er **ingen login** – kør den kun på netværk, du stoler på.
+## Dine data
 
-HTTPS til Android – to muligheder:
-- **Tailscale** (nemmest): `tailscale serve --bg 8000` giver en rigtig `https://…ts.net`-adresse kun til dine egne enheder. Data bliver stadig kun på din computer, men Tailscale er en (gratis) tjeneste til selve forbindelsen.
-- **Helt uden eksterne tjenester**: lav et certifikat med [mkcert](https://github.com/FiloSottile/mkcert), installér dets rod-certifikat på telefonen, og start med
-  `python3 server.py --cert cert.pem --key key.pem`.
+- Alt ligger i browserens lagring på telefonen. Intet sendes nogen steder hen.
+- Sletter du browserdata/appen, forsvinder opskrifterne. **Download backup** jævnligt (appen minder dig om det
+  hver 14. dag) og gendan med **Gendan backup**. Backup-filen kan også flyttes til en anden telefon.
+- Safari på iPhone kan rydde data fra sider, man ikke har besøgt i længere tid – endnu en grund til backup.
+- Teksten gemmes i appen, så den bliver, selv hvis opslaget slettes på Instagram.
 
 ## Begrænsninger
 
-- Instagram har ikke et åbent API. Teksten hentes fra den offentlige side/embed-siden, og det kan gå i stykker, når Instagram ændrer noget – eller for private konti. Så gemmes opslaget alligevel, og du kan trykke **Hent igen** eller **Rediger** og indsætte teksten selv.
-- Miniaturen gemmes lokalt ved første hentning. Videoer gemmes ikke, kun linket.
-- Stories understøttes ikke (kun `/p/`, `/reel/`, `/tv/`).
+- Instagram har intet åbent API. iPhone-genvejen læser den offentlige side; viser Instagram en login-side,
+  gemmes kun linket, og teksten kan indsættes med **Rediger**.
+- Billeder og videoer gemmes ikke – kun link til opslaget.
+- Kun opslag, reels og IGTV (`/p/`, `/reel/`, `/tv/`) – ikke stories.
+
+## Udvikling
+
+Appen er ren HTML/JS i `static/` og udgives automatisk på GitHub Pages ved push til `main`
+(Settings → Pages → Source: **GitHub Actions**).
+
+Kør lokalt: `cd static && python3 -m http.server 8000` → http://localhost:8000
+
+`server.py` er en valgfri server-udgave (Python, SQLite), som henter tekst og miniaturebilleder automatisk
+for alle enheder: `python3 server.py`. Den samme frontend skifter selv til server-tilstand, når den finder serveren.

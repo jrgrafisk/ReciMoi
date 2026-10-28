@@ -218,13 +218,30 @@ const cleanCaption = (s) => {
 };
 
 // ---- backup (kun lokal tilstand; serveren har sit eget endpoint) ----
-$("export").onclick = async (e) => {
+const BACKUP_KEY = "recimoi-last-backup";
+const BACKUP_DAYS = 14;
+
+async function downloadBackup() {
+  const blob = new Blob([JSON.stringify(await localExport(), null, 1)], { type: "application/json" });
+  const stamp = new Date().toISOString().slice(0, 10);
+  el("a", { href: URL.createObjectURL(blob), download: `recimoi-backup-${stamp}.json` }).click();
+  try { localStorage.setItem(BACKUP_KEY, String(Date.now())); } catch {}
+  $("backupNote").hidden = true;
+}
+
+function maybeRemindBackup() {
+  if (mode !== "local" || !state.counts.all) return;
+  let last = 0;
+  try { last = Number(localStorage.getItem(BACKUP_KEY)) || 0; } catch {}
+  $("backupNote").hidden = Date.now() - last < BACKUP_DAYS * 864e5;
+}
+
+$("export").onclick = (e) => {
   if (mode !== "local") return;
   e.preventDefault();
-  const blob = new Blob([JSON.stringify(await localExport(), null, 1)], { type: "application/json" });
-  const a = el("a", { href: URL.createObjectURL(blob), download: "recimoi-backup.json" });
-  a.click();
+  downloadBackup();
 };
+$("backupNow").onclick = downloadBackup;
 $("import").onchange = async (e) => {
   try {
     if (!confirm("Gendan backup? Det erstatter alt, der er gemt nu.")) return;
@@ -244,7 +261,12 @@ $("import").onchange = async (e) => {
     $("list").replaceChildren(el("p", { className: "muted" }, "Serveren kører ikke. Åbn Termux og start den (se README), og genindlæs siden."));
     return;
   }
-  if (mode === "local") $("importLbl").hidden = false;
+  if (mode === "local") {
+    $("importLbl").hidden = false;
+    $("where").hidden = false;
+    // Bed browseren om ikke at rydde data automatisk (virker bedst, når appen er installeret)
+    navigator.storage?.persist?.().catch(() => {});
+  }
   const params = new URLSearchParams(location.search);
   let newId = Number(params.get("new")) || null;
   // Delt fra Instagram (Android "Del til", iOS-genvej): ?url=…&text=…&title=…[&caption=…]
@@ -260,6 +282,7 @@ $("import").onchange = async (e) => {
   await loadCats();
   state.highlight = newId;
   await loadPosts();
+  maybeRemindBackup();
   if (shareErr) toast("Fandt intet Instagram-link i det, du delte.");
   if (newId) {
     const posts = await api("api/posts");

@@ -76,3 +76,4 @@ dialog li span { flex: 1; }
   background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; z-index: 10; max-width: 90vw;
 }
 @media (max-width: 420px) { .card { grid-template-columns: 72px 1fr; } .thumb { width: 72px; } }
+.note { background: var(--chip); border-radius: 12px; padding: 10px 12px; font-size: 14px; margin: 8px 0 0; }
