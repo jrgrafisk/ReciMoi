@@ -17,7 +17,7 @@ jobs:
             if out=$(shortcuts sign --mode "$mode" --input ReciMoi-unsigned.shortcut --output ReciMoi.shortcut 2>&1); then
               echo "::notice::Signeret ($mode)"; exit 0
             fi
-            echo "::warning::sign $mode fejlede: $(echo "$out" | tr '\n' ' ' | cut -c1-400)"
+            echo "::warning::sign $mode fejlede: $(echo "$out" | grep -v 'Unrecognized attribute' | tr '\n' ' ' | tail -c 600)"
           done
           exit 1
       - uses: actions/upload-artifact@v4
