@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Opskrifter</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Opskrifter">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <form id="add" autocomplete="off">
+    <input id="addInput" type="text" inputmode="url" placeholder="Indsæt Instagram-link…" aria-label="Instagram-link">
+    <button type="submit">Gem</button>
+  </form>
+  <input id="search" type="search" placeholder="Søg i tekst…" aria-label="Søg">
+  <nav id="chips" aria-label="Kategorier"></nav>
+</header>
+
+<main id="list"></main>
+<p id="empty" hidden>Ingen opslag her endnu.</p>
+
+<footer>
+  <button id="manage" class="link">Rediger kategorier</button> ·
+  <a href="/api/export">Download backup</a> ·
+  <a href="/ios.html">iPhone-genvej</a>
+</footer>
+
+<div id="toast" role="status" hidden></div>
+
+<dialog id="picker">
+  <h2>Vælg kategori</h2>
+  <p id="pickerInfo" class="muted"></p>
+  <div id="pickerList" class="grid"></div>
+  <form id="newCat" autocomplete="off">
+    <input id="newCatName" placeholder="Ny kategori…" aria-label="Ny kategori">
+    <button type="submit">Opret</button>
+  </form>
+  <button id="pickerClose" class="link">Spring over</button>
+</dialog>
+
+<dialog id="cats">
+  <h2>Kategorier</h2>
+  <ul id="catList"></ul>
+  <form id="newCat2" autocomplete="off">
+    <input id="newCat2Name" placeholder="Ny kategori…" aria-label="Ny kategori">
+    <button type="submit">Opret</button>
+  </form>
+  <button id="catsClose" class="link">Luk</button>
+</dialog>
+
+<script src="/app.js"></script>
+</body>
+</html>

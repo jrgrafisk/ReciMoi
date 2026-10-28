@@ -1,0 +1,78 @@
+:root {
+  --bg: #f6f5f1; --card: #fff; --fg: #1c1b19; --muted: #6b6860; --line: #e2dfd6;
+  --accent: #0f766e; --accent-fg: #fff; --chip: #ebe9e1; --danger: #b42318;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151514; --card: #1f1f1d; --fg: #eeece6; --muted: #9b978d; --line: #33322e;
+    --accent: #2dd4bf; --accent-fg: #06201c; --chip: #2a2a27; --danger: #f97066;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding: env(safe-area-inset-top) 16px calc(32px + env(safe-area-inset-bottom));
+  max-width: 760px; margin-inline: auto;
+}
+header { position: sticky; top: 0; background: var(--bg); padding: 12px 0 8px; z-index: 2; display: grid; gap: 8px; }
+form { display: flex; gap: 8px; }
+input, textarea, select {
+  font: inherit; color: inherit; background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px 12px; min-width: 0; width: 100%;
+}
+form input { flex: 1; }
+button {
+  font: inherit; cursor: pointer; border: 0; border-radius: 10px; padding: 10px 16px;
+  background: var(--accent); color: var(--accent-fg); font-weight: 600;
+}
+button.link, a { background: none; color: var(--accent); padding: 4px 0; font-weight: 500; text-decoration: none; }
+button.link:hover, a:hover { text-decoration: underline; }
+button.danger { color: var(--danger); }
+.muted { color: var(--muted); font-size: 14px; }
+
+#chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+#chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; background: var(--chip); color: var(--fg); font-weight: 500; padding: 6px 12px;
+  border-radius: 999px; font-size: 14px;
+}
+.chip.on { background: var(--accent); color: var(--accent-fg); }
+.chip small { opacity: .65; margin-left: 4px; }
+
+main { display: grid; gap: 12px; margin-top: 8px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  display: grid; grid-template-columns: 96px 1fr;
+}
+.card.hl { outline: 2px solid var(--accent); }
+.thumb { width: 96px; height: 100%; min-height: 96px; object-fit: cover; background: var(--chip); }
+.thumb.none { display: grid; place-items: center; color: var(--muted); font-size: 28px; }
+.body { padding: 12px; min-width: 0; display: grid; gap: 6px; }
+.meta { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.author { font-weight: 600; }
+.text { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.text.open { display: block; }
+.text.missing { color: var(--muted); font-style: italic; }
+.actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.actions select { width: auto; padding: 6px 10px; font-size: 14px; }
+.actions .sp { flex: 1; }
+textarea { min-height: 160px; }
+#empty { text-align: center; color: var(--muted); margin-top: 40px; }
+footer { text-align: center; margin-top: 28px; color: var(--muted); font-size: 14px; }
+
+dialog { border: 1px solid var(--line); border-radius: 16px; background: var(--card); color: var(--fg); width: min(92vw, 420px); padding: 18px; }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog h2 { margin: 0 0 8px; font-size: 18px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.grid button { background: var(--chip); color: var(--fg); padding: 14px 10px; }
+dialog form { margin: 8px 0; }
+dialog ul { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
+dialog li { display: flex; gap: 10px; align-items: center; }
+dialog li span { flex: 1; }
+
+#toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; z-index: 10; max-width: 90vw;
+}
+@media (max-width: 420px) { .card { grid-template-columns: 72px 1fr; } .thumb { width: 72px; } }
